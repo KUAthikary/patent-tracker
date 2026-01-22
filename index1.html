@@ -218,143 +218,191 @@
     </div>
 </div>
 
-    <script>
-        let currentUser = { email: "", role: "" };
-        let profile = { name: "Legal Team D03", mail: "innovator@dtu.dk" };
+   <script>
+    // System State & Profile Data
+    let currentUser = { email: "", role: "" };
+    
+    // Updated Profile Object to include Jurisdiction
+    let profile = { 
+        name: "Legal Team D03", 
+        mail: "innovator@dtu.dk",
+        jur: "EPO" 
+    };
 
-        const patentRoadmap = [
-            {
-                id: '0', title: '0. Initial Research', pct: 10,
-                desc: 'Invention description, variants, sketches, and disclosure history.',
-                docs: [
-                    { name: 'Core Invention Description', owner: 'user' },
-                    { name: 'Literature Review', owner: 'user' },
-                    { name: 'Drawings, sketches and diagrams', owner: 'user' }
-                ],
-                body: "Please submit your core invention description and sketches for initial review."
-            },
-            {
-                id: '1', title: '1. Prior Art Search', pct: 30,
-                desc: 'Keywords, essential features, and known existing solutions.',
-                docs: [
-                    { name: 'Keywords and Citations', owner: 'user' },
-                    { name: 'Database Search Log', owner: 'admin' },
-                    { name: 'Prior Art Results', owner: 'admin' }
-                ],
-                body: "We have updated the Prior Art results. Please review the Search Log."
-            },
-            {
-                id: '2', title: '2. Priority Date', pct: 50,
-                desc: 'Target priority date and initial drafting.',
-                docs: [
-                    { name: 'Current Claim Draft', owner: 'admin' },
-                    { name: 'Current Application Form Draft', owner: 'admin' },
-                    { name: 'Technical Drawings', owner: 'user' }
-                ],
-                body: "Please submit the final technical drawings for the Priority filing."
-            },
-            {
-                id: '4', title: '4. Filing', pct: 80,
-                desc: 'Official submission of application to patent offices.',
-                docs: [
-                    { name: 'Completed Application Form', owner: 'admin' },
-                    { name: 'Filing Receipts', owner: 'admin' },
-                    { name: 'Submission Confirmation', owner: 'admin' }
-                ],
-                body: "Filing completed. Please download your receipts."
-            },
-            {
-                id: '5', title: '5. Examination', pct: 100,
-                desc: 'Monitoring patent office responses and approval status.',
-                docs: [
-                    { name: 'Letters from the patent office', owner: 'admin' }
-                ],
-                body: "A new letter has been received from the patent office."
-            }
-        ];
+    // Original Patent Roadmap Data
+    const patentRoadmap = [
+        {
+            id: '0', title: '0. Initial Research', pct: 10,
+            desc: 'Invention description, variants, sketches, and disclosure history.',
+            docs: [
+                { name: 'Core Invention Description', owner: 'user' },
+                { name: 'Literature Review', owner: 'user' },
+                { name: 'Drawings, sketches and diagrams', owner: 'user' }
+            ],
+            body: "Please submit your core invention description and sketches for initial review."
+        },
+        {
+            id: '1', title: '1. Prior Art Search', pct: 30,
+            desc: 'Keywords, essential features, and known existing solutions.',
+            docs: [
+                { name: 'Keywords and Citations', owner: 'user' },
+                { name: 'Database Search Log', owner: 'admin' },
+                { name: 'Prior Art Results', owner: 'admin' }
+            ],
+            body: "We have updated the Prior Art results. Please review the Search Log."
+        },
+        {
+            id: '2', title: '2. Priority Date', pct: 50,
+            desc: 'Target priority date and initial drafting.',
+            docs: [
+                { name: 'Current Claim Draft', owner: 'admin' },
+                { name: 'Current Application Form Draft', owner: 'admin' },
+                { name: 'Technical Drawings', owner: 'user' }
+            ],
+            body: "Please submit the final technical drawings for the Priority filing."
+        },
+        {
+            id: '4', title: '4. Filing', pct: 80,
+            desc: 'Official submission of application to patent offices.',
+            docs: [
+                { name: 'Completed Application Form', owner: 'admin' },
+                { name: 'Filing Receipts', owner: 'admin' },
+                { name: 'Submission Confirmation', owner: 'admin' }
+            ],
+            body: "Filing completed. Please download your receipts."
+        },
+        {
+            id: '5', title: '5. Examination', pct: 100,
+            desc: 'Monitoring patent office responses and approval status.',
+            docs: [
+                { name: 'Letters from the patent office', owner: 'admin' }
+            ],
+            body: "A new letter has been received from the patent office."
+        }
+    ];
 
-        document.getElementById('auth-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            currentUser.role = (email === 'admin@admin.com') ? 'admin' : 'user';
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('app-container').style.display = 'flex';
-            document.getElementById('send-request-btn').style.display = (currentUser.role === 'admin') ? 'block' : 'none';
-            document.getElementById('chat-window').style.display = (currentUser.role === 'user') ? 'block' : 'none';
-            renderSidebar();
-            updateUI();
+    // --- Authentication Logic ---
+    document.getElementById('auth-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        
+        // Simple role assignment based on demo emails
+        currentUser.role = (email === 'admin@admin.com') ? 'admin' : 'user';
+        
+        // UI Transitions
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+        
+        // Role-based visibility
+        document.getElementById('send-request-btn').style.display = (currentUser.role === 'admin') ? 'block' : 'none';
+        document.getElementById('chat-window').style.display = (currentUser.role === 'user') ? 'block' : 'none';
+        
+        renderSidebar();
+        updateUI(); // Initialize display with profile data
+    });
+
+    // --- Sidebar & Navigation ---
+    function renderSidebar() {
+        const list = document.getElementById('sidebar-items');
+        list.innerHTML = '';
+        patentRoadmap.forEach(stage => {
+            const div = document.createElement('div');
+            div.className = 'nav-item';
+            div.innerHTML = `<span>${stage.title}</span><span style="font-size:10px; opacity:0.5;">${stage.pct}%</span>`;
+            div.onclick = () => selectStage(stage, div);
+            list.appendChild(div);
         });
+    }
 
-        function renderSidebar() {
-            const list = document.getElementById('sidebar-items');
-            list.innerHTML = '';
-            patentRoadmap.forEach(stage => {
-                const div = document.createElement('div');
-                div.className = 'nav-item';
-                div.innerHTML = `<span>${stage.title}</span><span style="font-size:10px; opacity:0.5;">${stage.pct}%</span>`;
-                div.onclick = () => selectStage(stage, div);
-                list.appendChild(div);
+    function selectStage(stage, element) {
+        // Handle active state UI
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        element.classList.add('active');
+
+        // Update Header & Progress
+        document.getElementById('view-title').innerText = stage.title;
+        document.getElementById('view-desc').innerText = stage.desc;
+        document.getElementById('progress-bar').style.width = stage.pct + '%';
+        document.getElementById('pct-text').innerText = stage.pct + '%';
+
+        // Render Vault Documents
+        const vault = document.getElementById('vault-area');
+        vault.innerHTML = stage.docs.map(doc => {
+            const canUpload = (currentUser.role === doc.owner);
+            let btnHtml = `<button class="btn btn-secondary" style="font-size: 9px;">VIEW</button>`;
+            
+            if (canUpload) {
+                // Button functionality restored as requested
+                btnHtml += `<button class="btn btn-secondary" style="font-size: 9px; border: 1px dashed var(--brand-light);" onclick="triggerFileUpload()">UPLOAD</button>`;
+            }
+            
+            const subLabel = doc.owner === 'user' ? 'Innovator' : 'Admin';
+            return `<div class="vault-item">
+                <div><span>📄 ${doc.name}</span><br><small style="color: #999;">Submit by ${subLabel}</small></div>
+                <div style="display:flex; gap: 8px;">${btnHtml}</div>
+            </div>`;
+        }).join('');
+
+        // Update the Email Request Button Logic
+        document.getElementById('send-request-btn').onclick = () => {
+            const params = new URLSearchParams({ 
+                view: 'cm', 
+                fs: '1', 
+                to: profile.mail, 
+                su: `Patent Update [${profile.jur}]: ${stage.title}`, 
+                body: `Dear Partner,\n\nRegarding the ${profile.jur} jurisdiction application: ${stage.body}\n\nRegards,\n${profile.name}` 
             });
-        }
+            window.open(`https://mail.google.com/mail/?${params.toString()}`, '_blank');
+        };
+    }
 
-        function selectStage(stage, element) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            element.classList.add('active');
-            document.getElementById('view-title').innerText = stage.title;
-            document.getElementById('view-desc').innerText = stage.desc;
-            document.getElementById('progress-bar').style.width = stage.pct + '%';
-            document.getElementById('pct-text').innerText = stage.pct + '%';
+    // --- Profile & Settings Management ---
+    function toggleSettings(show) { 
+        document.getElementById('profile-modal').style.display = show ? 'flex' : 'none'; 
+    }
 
-            const vault = document.getElementById('vault-area');
-            vault.innerHTML = stage.docs.map(doc => {
-                const canUpload = (currentUser.role === doc.owner);
-                let btnHtml = `<button class="btn btn-secondary" style="font-size: 9px;">VIEW</button>`;
-                if (canUpload) {
-                    btnHtml += `<button class="btn btn-secondary" style="font-size: 9px; border: 1px dashed var(--brand-light);" onclick="triggerFileUpload()">UPLOAD</button>`;
-                }
-                const subLabel = doc.owner === 'user' ? 'Innovator' : 'Admin';
-                return `<div class="vault-item">
-                    <div><span>📄 ${doc.name}</span><br><small style="color: #999;">Submit by ${subLabel}</small></div>
-                    <div style="display:flex; gap: 8px;">${btnHtml}</div>
-                </div>`;
-            }).join('');
+    function saveSettings() {
+        // Pull values from Modal
+        profile.name = document.getElementById('set-name').value;
+        profile.mail = document.getElementById('set-mail').value;
+        profile.jur = document.getElementById('set-jur').value; 
+        
+        updateUI(); // Refresh the Dashboard labels
+        toggleSettings(false);
+    }
 
-            document.getElementById('send-request-btn').onclick = () => {
-                const params = new URLSearchParams({ 
-                    view: 'cm', fs: '1', to: profile.mail, 
-                    su: `Patent Update: ${stage.title}`, 
-                    body: `Dear Partner,\n\n${stage.body}\n\nRegards,\n${profile.name}` 
-                });
-                window.open(`https://mail.google.com/mail/?${params.toString()}`, '_blank');
-            };
-        }
+    function updateUI() {
+        // Update Dashboard labels
+        document.getElementById('disp-name').innerText = profile.name;
+        document.getElementById('disp-mail').innerText = profile.mail;
+        document.getElementById('disp-jur').innerText = profile.jur; 
+    }
 
-        function toggleSettings(show) { document.getElementById('profile-modal').style.display = show ? 'flex' : 'none'; }
-        function saveSettings() {
-            profile.name = document.getElementById('set-name').value;
-            profile.mail = document.getElementById('set-mail').value;
-            updateUI(); toggleSettings(false);
-        }
-        function updateUI() {
-            document.getElementById('disp-name').innerText = profile.name;
-            document.getElementById('disp-mail').innerText = profile.mail;
-        }
-        function toggleDictionary() {
-            const p = document.getElementById('dictionary-panel');
-            p.style.display = (p.style.display === 'none') ? 'block' : 'none';
-        }
-        function sendMessage() {
-            const input = document.getElementById('msg-input');
-            if (!input.value.trim()) return;
-            document.getElementById('chat-box').innerHTML += `<div><strong>You:</strong> ${input.value}</div>`;
-            input.value = '';
-        }
-        function triggerFileUpload() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.onchange = e => alert(`File uploaded: ${e.target.files[0].name}`);
-            input.click();
-        }
-    </script>
+    // --- Utility Functions ---
+    function toggleDictionary() {
+        const p = document.getElementById('dictionary-panel');
+        p.style.display = (p.style.display === 'none') ? 'block' : 'none';
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('msg-input');
+        if (!input.value.trim()) return;
+        const chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML += `<div style="margin-bottom:8px;"><strong>You:</strong> ${input.value}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        input.value = '';
+    }
+
+    function triggerFileUpload() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = e => {
+            if(e.target.files.length > 0) {
+                alert(`File selected for secure upload: ${e.target.files[0].name}`);
+            }
+        };
+        input.click();
+    }
+</script>
 </body>
 </html>
