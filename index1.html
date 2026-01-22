@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patent Path | Institutional IP Portal</title>
+    <style>
+        :root {
+            /* Palette derived from the Logo */
+            --brand-dark: #002b5c;
+            --brand-primary: #0056b3;
+            --brand-light: #3d85c6;
+            --brand-gradient: linear-gradient(135deg, #002b5c 0%, #3d85c6 100%);
+            
+            --bg-surface: #f4f7fa;
+            --card-glass: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* --- Login System --- */
+        #login-overlay {
+            position: fixed; inset: 0;
+            background: var(--brand-gradient);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: white; padding: 50px; border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            width: 100%; max-width: 420px; text-align: center;
+        }
+        .login-logo {
+            max-width: 220px; margin-bottom: 20px;
+        }
+        .login-box input {
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            border: 2px solid var(--border-color); border-radius: var(--radius-sm);
+            font-size: 1rem; transition: 0.3s;
+        }
+        .login-box input:focus { outline: none; border-color: var(--brand-light); }
+        .btn-auth {
+            width: 100%; padding: 15px; background: var(--brand-primary);
+            color: white; border: none; border-radius: var(--radius-sm);
+            font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .btn-auth:hover { background: var(--brand-dark); transform: translateY(-2px); }
+
+        /* --- Main Layout --- */
+        #app-container { display: none; height: 100vh; flex-direction: row; }
+
+        .sidebar {
+            width: 300px; background: var(--brand-dark); color: white;
+            display: flex; flex-direction: column; padding: 0;
+        }
+        .sidebar-header {
+            padding: 40px 20px; text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-logo { width: 180px; filter: brightness(0) invert(1); }
+
+        .nav-list { flex-grow: 1; padding: 20px 0; overflow-y: auto; }
+        .nav-item {
+            margin: 4px 15px; padding: 14px 18px; cursor: pointer; border-radius: var(--radius-sm);
+            transition: 0.2s; color: rgba(255,255,255,0.7); display: flex;
+            justify-content: space-between; align-items: center; font-size: 0.9rem;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active {
+            background: var(--brand-light); color: white; font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* --- Viewport --- */
+        .viewport { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .header {
+            background: var(--card-glass); backdrop-filter: blur(10px);
+            padding: 20px 40px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        .progress-box { width: 350px; }
+        .progress-label { font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+        .progress-track { height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; }
+        #progress-bar { 
+            height: 100%; background: var(--brand-gradient); width: 0%; 
+            transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
+
+        /* --- Content Area --- */
+        .content-grid { display: grid; grid-template-columns: 1fr 340px; gap: 30px; padding: 30px 40px; }
+        .card { 
+            background: white; border-radius: var(--radius-lg); padding: 30px; 
+            margin-bottom: 25px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5);
+        }
+        .card h3 { 
+            margin: 0 0 20px 0; font-size: 0.75rem; color: var(--brand-light); 
+            text-transform: uppercase; letter-spacing: 1.5px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;
+        }
+
+        .vault-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px; background: #f8fafc; border: 1px solid #edf2f7; 
+            margin-bottom: 12px; border-radius: var(--radius-sm); transition: 0.2s;
+        }
+        .vault-item:hover { transform: translateX(5px); border-color: var(--brand-light); }
+
+        /* --- Components --- */
+        .btn { padding: 12px 24px; border-radius: var(--radius-sm); cursor: pointer; border: none; font-weight: 600; transition: 0.2s; }
+        .btn-primary { background: var(--brand-primary); color: white; }
+        .btn-primary:hover { background: var(--brand-dark); }
+        .btn-secondary { background: #f1f5f9; color: var(--text-main); }
+
+        .chat-container { height: 220px; background: #fdfdfd; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 15px; overflow-y: auto; margin-bottom: 12px; }
+        .chat-input { display: flex; gap: 10px; }
+        .chat-input input { flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
+
+        /* --- Modals --- */
+        #profile-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,43,92,0.6);
+            backdrop-filter: blur(5px); z-index: 10001; justify-content: center; align-items: center;
+        }
+        .modal-content { background: white; padding: 40px; border-radius: 24px; width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <img src="logo.png" alt="Patent Path Logo" class="login-logo">
+            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 30px;">Strategic IP Management Portal</p>
+            <form id="auth-form">
+                <input type="email" id="login-email" placeholder="Institutional Email" required>
+                <input type="password" id="login-pass" placeholder="Enter Access Key" required>
+                <button type="submit" class="btn-auth">AUTHENTICATE SYSTEM</button>
+            </form>
+            <p style="font-size: 11px; color: #94a3b8; margin-top: 20px;">Internal Use Only • Encrypted Session</p>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="logo.png" alt="Logo" class="sidebar-logo">
+            </div>
+            <div class="nav-list" id="sidebar-items"></div>
+            <div style="padding: 25px; background: rgba(0,0,0,0.1);">
+                <button class="btn btn-secondary" style="width:100%; margin-bottom:10px; background: rgba(255,255,255,0.1); color: white;" onclick="toggleSettings(true)">Profile Settings</button>
+                <button class="btn" style="width:100%; color: #3d85c6; border: 1px solid #3d85c6; background: transparent;" onclick="location.reload()">Sign Out</button>
+            </div>
+        </nav>
+
+        <main class="viewport">
+            <header class="header">
+                <div class="progress-box">
+                    <div class="progress-label">Path Progress: <span id="pct-text" style="color: var(--brand-primary);">0%</span></div>
+                    <div class="progress-track"><div id="progress-bar"></div></div>
+                </div>
+                <div class="toolbar">
+                    <button class="btn btn-secondary" style="margin-right: 12px;" onclick="toggleDictionary()">Legal Terms</button>
+                    <button class="btn btn-primary" id="send-request-btn">Request Data</button>
+                </div>
+            </header>
+
+            <div class="content-grid">
+                <div class="col-main">
+                    <div class="card" style="border-top: 4px solid var(--brand-light);">
+                        <h2 id="view-title" style="margin: 0; color: var(--brand-dark); font-size: 1.6rem;">Welcome to Patent Path</h2>
+                        <p id="view-desc" style="color: var(--text-muted); line-height: 1.6; margin-top: 12px;">Choose a roadmap milestone from the sidebar to begin managing intellectual property assets.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Secure Document Vault <span style="cursor:pointer; color: var(--brand-light);" onclick="triggerFileUpload()">+ UPLOAD</span></h3>
+                        <div id="vault-area">
+                            <p style="text-align: center; color: #94a3b8; padding: 50px;">Please select a roadmap stage.</p>
+                        </div>
+                    </div>
+
+                    <div id="chat-window" class="card">
+                        <h3>Legal Officer Communications</h3>
+                        <div class="chat-container" id="chat-box"></div>
+                        <div class="chat-input">
+                            <input type="text" id="msg-input" placeholder="Query legal support...">
+                            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-side">
+                    <div id="dictionary-panel" class="card" style="display: none; background: #f8fafc;">
+                        <h3>Definitions</h3>
+                        <div style="font-size: 0.85rem; line-height: 1.5;">
+                            <p><strong>Priority Date:</strong> The filing date used to establish novelty.</p>
+                            <hr style="border:0; border-top:1px solid #e2e8f0; margin:10px 0;">
+                            <p><strong>Prior Art:</strong> Any evidence that your invention is already known.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Active Stakeholders</h3>
+                        <div style="font-size: 0.95rem;">
+                            <p style="margin-bottom: 5px;"><strong>Officer:</strong></p>
+                            <p id="disp-name" style="color: var(--brand-primary); font-weight: 600;">Legal Team D03</p>
+                            <p style="margin: 15px 0 5px 0;"><strong>Innovator:</strong></p>
+                            <p id="disp-mail" style="color: var(--text-muted);">innovator@dtu.dk</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="profile-modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0; color: var(--brand-dark);">System Settings</h2>
+            <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">Full Name</label>
+                <input type="text" id="set-name" value="Legal Team D03" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
+            </div>
+            <div style="margin-bottom:25px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">Innovator Destination</label>
+                <input type="email" id="set-mail" value="innovator@dtu.dk" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
+            </div>
+            <div style="display:flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="saveSettings()">Save Configuration</button>
+                <button class="btn btn-secondary" onclick="toggleSettings(false)">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = { email: "", role: "" };
+        let profile = { name: "Legal Team D03", mail: "innovator@dtu.dk" };
+
+        const patentRoadmap = [
+            { id: '0', title: '0. Initial Research', pct: 15, desc: 'Capture invention description, variants, sketches, and disclosure history.', docs: [{ name: 'Core Invention Description', owner: 'user' }, { name: 'Literature Review', owner: 'user' }], body: "Please provide the latest technical descriptions." },
+            { id: '1', title: '1. Prior Art Search', pct: 35, desc: 'Investigating keywords, essential features, and existing solutions.', docs: [{ name: 'Search Result Log', owner: 'admin' }, { name: 'Keyword Analysis', owner: 'user' }], body: "Prior art search results are available for review." },
+            { id: '2', title: '2. Priority Date', pct: 55, desc: 'Targeting filing dates and initiating formal drafting.', docs: [{ name: 'Claim Draft v1.0', owner: 'admin' }, { name: 'Technical Sketches', owner: 'user' }], body: "Please approve the draft claims for filing." },
+            { id: '3', title: '3. Official Filing', pct: 85, desc: 'Formal submission to Patent Offices (USPTO/EPO).', docs: [{ name: 'Filing Receipt', owner: 'admin' }, { name: 'Confirmation Notice', owner: 'admin' }], body: "The application has been officially filed." },
+            { id: '4', title: '4. Examination', pct: 100, desc: 'Handling Office Actions and final patent grant.', docs: [{ name: 'Grant Certificate', owner: 'admin' }], body: "Examination complete. Patent granted." }
+        ];
+
+        document.getElementById('auth-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            currentUser.role = (email === 'admin@admin.com') ? 'admin' : 'user';
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app-container').style.display = 'flex';
+            document.getElementById('chat-window').style.display = (currentUser.role === 'user') ? 'block' : 'none';
+            renderSidebar();
+            updateUI();
+        });
+
+        function renderSidebar() {
+            const list = document.getElementById('sidebar-items');
+            list.innerHTML = '';
+            patentRoadmap.forEach(stage => {
+                const div = document.createElement('div');
+                div.className = 'nav-item';
+                div.innerHTML = `<span>${stage.title}</span><span style="font-size:10px;">${stage.pct}%</span>`;
+                div.onclick = () => selectStage(stage, div);
+                list.appendChild(div);
+            });
+        }
+
+        function selectStage(stage, element) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('view-title').innerText = stage.title;
+            document.getElementById('view-desc').innerText = stage.desc;
+            document.getElementById('progress-bar').style.width = stage.pct + '%';
+            document.getElementById('pct-text').innerText = stage.pct + '%';
+
+            const vault = document.getElementById('vault-area');
+            vault.innerHTML = stage.docs.map(doc => `
+                <div class="vault-item">
+                    <div><strong>${doc.name}</strong><br><small style="color:#94a3b8">Authorized: ${doc.owner.toUpperCase()}</small></div>
+                    <button class="btn btn-secondary" style="font-size:11px; padding: 6px 12px;" onclick="triggerFileUpload()">REPLACE</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleSettings(show) { document.getElementById('profile-modal').style.display = show ? 'flex' : 'none'; }
+        function saveSettings() {
+            profile.name = document.getElementById('set-name').value;
+            profile.mail = document.getElementById('set-mail').value;
+            updateUI(); toggleSettings(false);
+        }
+        function updateUI() {
+            document.getElementById('disp-name').innerText = profile.name;
+            document.getElementById('disp-mail').innerText = profile.mail;
+        }
+        function toggleDictionary() {
+            const p = document.getElementById('dictionary-panel');
+            p.style.display = (p.style.display === 'none') ? 'block' : 'none';
+        }
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            if (!input.value.trim()) return;
+            document.getElementById('chat-box').innerHTML += `<div style="margin-bottom:10px; font-size:13px;"><strong>Innovator:</strong> ${input.value}</div>`;
+            input.value = '';
+        }
+        function triggerFileUpload() { alert("Initiating secure file upload..."); }
+    </script>
+</body>
+</html>
