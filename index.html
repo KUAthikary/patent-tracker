@@ -30,6 +30,13 @@
             background: white; padding: 50px; border-radius: 4px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 400px; text-align: center;
         }
+        .login-logo {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 180px;
+            height: auto;
+        }
+
         .login-box h1 { margin-bottom: 30px; font-weight: 800; color: var(--dtu-grey); }
         .login-box h1 span { color: var(--dtu-red); }
         .login-box input {
@@ -116,7 +123,9 @@
 
     <div id="login-overlay">
         <div class="login-box">
-            <h1>Patent<span>.</span>Path</h1>
+           <img src="assets/logo.png" 
+             alt="Patent.Path Logo" 
+             class="login-logo">
             <p style="color: #6b778c; margin-bottom: 30px;">Institutional IP Workflow Portal</p>
             <form id="auth-form">
                 <input type="email" id="login-email" placeholder="Institutional Email" required>
