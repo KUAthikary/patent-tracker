@@ -30,18 +30,20 @@
         }
         .login-box {
             background: white; padding: 50px; border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); width: 400px; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); width: 420px; text-align: center;
         }
         .login-logo { max-width: 180px; margin-bottom: 20px; }
 
         .login-box input {
             width: 100%; padding: 14px; margin-bottom: 20px;
             border: 2px solid var(--border-color); border-radius: 6px; box-sizing: border-box;
+            background: #fdfdfd;
         }
         .btn-auth {
             width: 100%; padding: 14px; background: var(--brand-primary); color: white;
-            border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
+        .btn-auth:hover { background: var(--brand-dark); }
 
         /* --- Main Layout --- */
         #app-container { display: none; height: 100vh; flex-direction: row; }
@@ -87,11 +89,17 @@
             margin-bottom: 10px; border-radius: 6px; font-size: 0.9rem;
         }
 
-        /* --- Chat & Buttons --- */
+        /* --- Buttons & UI --- */
         .btn { padding: 8px 16px; border-radius: 4px; cursor: pointer; border: none; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         .btn-primary { background: var(--brand-primary); color: white; }
         .btn-secondary { background: #ebecf0; color: #42526e; }
         
+        .upload-trigger { 
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; background: var(--brand-primary); 
+            color: white; border-radius: 50%; font-size: 18px; line-height: 1; cursor: pointer; 
+        }
+
         #chat-window { display: none; }
         .chat-container { height: 200px; border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; overflow-y: auto; background: #fdfdfd; font-size: 0.85rem; margin-bottom: 10px; }
         .chat-input { display: flex; gap: 5px; }
@@ -109,13 +117,16 @@
     <div id="login-overlay">
         <div class="login-box">
             <img src="logo.png" alt="Patent Path Logo" class="login-logo">
-            <p style="color: #6b778c; margin-bottom: 30px;">Institutional IP Workflow Portal</p>
+            <p style="color: #6b778c; margin-bottom: 30px; font-weight: 500;">Institutional IP Workflow Portal</p>
             <form id="auth-form">
-                <input type="email" id="login-email" placeholder="Institutional Email" required>
-                <input type="password" id="login-pass" placeholder="Access Key" required>
+                <input type="email" id="login-email" placeholder="Institutional Email" value="admin@admin.com" required>
+                <input type="password" id="login-pass" placeholder="Access Key" value="password123" required>
                 <button type="submit" class="btn-auth">AUTHENTICATE</button>
             </form>
-            <p style="font-size: 10px; color: #999; margin-top: 15px;">Admin: admin@admin.com | Innovator: user@user.com</p>
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <p style="font-size: 11px; color: #777; margin: 0;"><b>Demo Accounts:</b> admin@admin.com | user@user.com</p>
+                <p style="font-size: 11px; color: #3d85c6; margin-top: 5px;"><i>Note: Enter any password to login</i></p>
+            </div>
         </div>
     </div>
 
@@ -151,7 +162,7 @@
                     </div>
 
                     <div class="card">
-                        <h3>Document Vault <span style="cursor:pointer; color:var(--brand-primary)" onclick="triggerFileUpload()">+</span></h3>
+                        <h3>Document Vault <span class="upload-trigger" onclick="triggerFileUpload()">+</span></h3>
                         <div id="vault-area">
                             <p style="text-align: center; color: #999; padding: 40px;">Select a milestone to view documents.</p>
                         </div>
