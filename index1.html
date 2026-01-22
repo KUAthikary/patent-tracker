@@ -189,6 +189,7 @@
                         <div style="font-size: 0.9rem;">
                             <p><strong>Officer:</strong> <span id="disp-name">Legal Team D03</span></p>
                             <p><strong>Target:</strong> <span id="disp-mail">innovator@dtu.dk</span></p>
+                            <p><strong>Patent Jurisdiction:</strong> <span id="disp-jur">EPO</span></p> 
                         </div>
                     </div>
                 </div>
@@ -196,15 +197,26 @@
         </main>
     </div>
 
-    <div id="profile-modal">
-        <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--brand-primary);">Officer Profile Settings</h2>
-            <div style="margin-bottom:15px;"><label style="display:block; font-size:11px; font-weight:bold; margin-bottom:5px;">Full Name</label><input type="text" id="set-name" value="Legal Team D03" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"></div>
-            <div style="margin-bottom:15px;"><label style="display:block; font-size:11px; font-weight:bold; margin-bottom:5px;">Applicant Email</label><input type="email" id="set-mail" value="innovator@dtu.dk" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"></div>
-            <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
-            <button class="btn btn-secondary" onclick="toggleSettings(false)">Cancel</button>
+<div id="profile-modal">
+    <div class="modal-content">
+        <h2 style="margin-top:0; color:var(--brand-primary);">Officer Profile Settings</h2>
+        <div style="margin-bottom:15px;"><label style="display:block; font-size:11px; font-weight:bold; margin-bottom:5px;">Full Name</label><input type="text" id="set-name" value="Legal Team D03" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"></div>
+        
+        <div style="margin-bottom:15px;">
+            <label style="display:block; font-size:11px; font-weight:bold; margin-bottom:5px;">Patent Jurisdiction</label>
+            <select id="set-jur" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                <option value="EPO">EPO (Europe)</option>
+                <option value="USPTO">USPTO (USA)</option>
+                <option value="DKPT">DKPT (Denmark)</option>
+                <option value="WIPO">WIPO (International)</option>
+            </select>
         </div>
+
+        <div style="margin-bottom:15px;"><label style="display:block; font-size:11px; font-weight:bold; margin-bottom:5px;">Applicant Email</label><input type="email" id="set-mail" value="innovator@dtu.dk" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"></div>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+        <button class="btn btn-secondary" onclick="toggleSettings(false)">Cancel</button>
     </div>
+</div>
 
     <script>
         let currentUser = { email: "", role: "" };
